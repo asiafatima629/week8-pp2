@@ -1,3 +1,4 @@
+const validator = require('validator'); // updated
 const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 
@@ -23,7 +24,7 @@ const signupUser = async (req, res) => {
   } = req.body;
 
   try {
-    // validate required fields // updated
+    // validate required fields
     if (
       !name ||
       !email ||
@@ -33,21 +34,31 @@ const signupUser = async (req, res) => {
       !date_of_birth ||
       !membership_status
     ) {
-      throw new Error("All fields must be filled"); // updated
+      throw new Error("All fields must be filled");
     }
 
-    // validate phone number (10+ digits) // updated
+    // validate email using validator // updated
+    if (!validator.isEmail(email)) {
+      return res.status(400).json({ error: "Invalid email format" });
+    }
+
+    // validate password strength using validator // updated
+    if (!validator.isStrongPassword(password)) {
+      return res.status(400).json({ error: "Password is too weak" });
+    }
+
+    // validate phone number (10+ digits)
     if (!/^\d{10,}$/.test(phone_number)) {
-      throw new Error("Phone number must contain at least 10 digits"); // updated
+      throw new Error("Phone number must contain at least 10 digits");
     }
 
-    // validate enums // updated
+    // validate enums
     if (!["Male", "Female", "Other"].includes(gender)) {
-      throw new Error("Invalid gender value"); // updated
+      throw new Error("Invalid gender value");
     }
 
     if (!["Active", "Inactive", "Suspended"].includes(membership_status)) {
-      throw new Error("Invalid membership status"); // updated
+      throw new Error("Invalid membership status");
     }
 
     // create user
