@@ -11,6 +11,7 @@ const requireAuth = require("../middleware/requireAuth");
 router.use(requireAuth);
 
 router.get("/", getAllTours);
+
 router.post("/", createTour);
 router.get("/:tourId", getTour);
 router.put("/:tourId", updateTour);
