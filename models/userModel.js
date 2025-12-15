@@ -17,6 +17,25 @@ const userSchema = mongoose.Schema(
       type: String,
       required: [true, "Please add a password"],
     },
+    phone_number: {
+      type: String,
+      required: [true, "Please add a phone number"],
+      match: [/^\d{10,}$/, "Phone number must be at least 10 digits"],
+    },
+    gender: {
+      type: String,
+      required: [true, "Please select gender"],
+      enum: ["Male", "Female", "Other"],
+    },
+    date_of_birth: {
+      type: Date,
+      required: [true, "Please provide date of birth"],
+    },
+    membership_status: {
+      type: String,
+      required: [true, "Please provide membership status"],
+      enum: ["Active", "Inactive", "Suspended"],
+    },
   },
   {
     timestamps: true,
@@ -24,9 +43,16 @@ const userSchema = mongoose.Schema(
 );
 
 // static signup method
-userSchema.statics.signup = async function (name, email, password) {
-  // validation
-  if ((!name, !email || !password)) {
+userSchema.statics.signup = async function (
+  name,
+  email,
+  password,
+  phone_number,
+  gender,
+  date_of_birth,
+  membership_status
+) {
+  if (!name || !email || !password || !phone_number || !gender || !date_of_birth || !membership_status) {
     throw Error("Please add all fields");
   }
   if (!validator.isEmail(email)) {
@@ -35,9 +61,17 @@ userSchema.statics.signup = async function (name, email, password) {
   if (!validator.isStrongPassword(password)) {
     throw Error("Password not strong enough");
   }
+  if (!/^\d{10,}$/.test(phone_number)) {
+    throw Error("Phone number must be at least 10 digits");
+  }
+  if (!["Male", "Female", "Other"].includes(gender)) {
+    throw Error("Invalid gender value");
+  }
+  if (!["Active", "Inactive", "Suspended"].includes(membership_status)) {
+    throw Error("Invalid membership status");
+  }
 
   const userExists = await this.findOne({ email });
-
   if (userExists) {
     throw new Error("User already exists");
   }
@@ -49,6 +83,10 @@ userSchema.statics.signup = async function (name, email, password) {
     name,
     email,
     password: hashedPassword,
+    phone_number,
+    gender,
+    date_of_birth,
+    membership_status,
   });
 
   return user;
