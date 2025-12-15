@@ -27,5 +27,5 @@ console.log("User attached to req:", req.user);
     res.status(401).json({ error: "Request is not authorized" });
   }
 };
-
+   
 module.exports = requireAuth;
