@@ -10,7 +10,7 @@ const tourRouter = require("./routers/tourRouter");
 // express app
 const app = express();
 
-connectDB(); 
+connectDB();
 
 
 // middleware
@@ -23,7 +23,8 @@ app.get("/", (req, res) => res.send("API Running!"));
 
 app.use("/api/todoTasks", todoTaskRouter);
 app.use("/api/users", userRouter);
-app.use("/api/tours", tourRouter);
+app.use("/api/tours", tourRouter);   
+ 
 
 app.use(unknownEndpoint);
 app.use(errorHandler);

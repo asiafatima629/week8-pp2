@@ -12,15 +12,62 @@ const generateToken = (_id) => {
 // @route   POST /api/users/signup
 // @access  Public
 const signupUser = async (req, res) => {
-  const { name, email, password } = req.body;
+  const {
+    name,
+    email,
+    password,
+    phone_number,
+    gender,
+    date_of_birth,
+    membership_status,
+  } = req.body;
 
   try {
-    const user = await User.signup(name, email, password);
+    // validate required fields // updated
+    if (
+      !name ||
+      !email ||
+      !password ||
+      !phone_number ||
+      !gender ||
+      !date_of_birth ||
+      !membership_status
+    ) {
+      throw new Error("All fields must be filled"); // updated
+    }
+
+    // validate phone number (10+ digits) // updated
+    if (!/^\d{10,}$/.test(phone_number)) {
+      throw new Error("Phone number must contain at least 10 digits"); // updated
+    }
+
+    // validate enums // updated
+    if (!["Male", "Female", "Other"].includes(gender)) {
+      throw new Error("Invalid gender value"); // updated
+    }
+
+    if (!["Active", "Inactive", "Suspended"].includes(membership_status)) {
+      throw new Error("Invalid membership status"); // updated
+    }
+
+    // create user
+    const user = await User.signup(
+      name,
+      email,
+      password,
+      phone_number,
+      gender,
+      date_of_birth,
+      membership_status
+    );
 
     // create a token
     const token = generateToken(user._id);
 
-    res.status(201).json({ email, token });
+    res.status(201).json({
+      user, // full user object including all fields // updated
+      token,
+    });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -34,14 +81,13 @@ const loginUser = async (req, res) => {
   try {
     const user = await User.login(email, password);
 
-    if (user) {
-      // create a token
-      const token = generateToken(user._id);
-      res.status(200).json({ email, token });
-    } else {
-      res.status(400);
-      throw new Error("Invalid credentials");
-    }
+    // create a token
+    const token = generateToken(user._id);
+
+    res.status(200).json({
+      user, // return full user object // updated
+      token,
+    });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -52,7 +98,7 @@ const loginUser = async (req, res) => {
 // @access  Private
 const getMe = async (req, res) => {
   try {
-    res.status(200).json(req.user);
+    res.status(200).json(req.user); // req.user comes from requireAuth // updated
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
