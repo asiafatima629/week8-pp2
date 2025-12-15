@@ -29,3 +29,4 @@ console.log("User attached to req:", req.user);
 };
    
 module.exports = requireAuth;
+   
