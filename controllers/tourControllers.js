@@ -4,7 +4,8 @@ const mongoose = require("mongoose");
 // GET /tours
 const getAllTours = async (req, res) => {
   try {
-    const tours = await Tour.find({}).sort({ createdAt: -1 });
+    const user_id = req.user._id;
+    const tours = await Tour.find({ user_id }).sort({ createdAt: -1 });
     res.status(200).json(tours);
   } catch (error) {
     res.status(500).json({ message: "Failed to retrieve tours" });
@@ -14,7 +15,8 @@ const getAllTours = async (req, res) => {
 // POST /tours
 const createTour = async (req, res) => {
   try {
-    const newTour = await Tour.create({ ...req.body });
+    const user_id = req.user._id;
+    const newTour = await Tour.create({ ...req.body, user_id });
     res.status(201).json(newTour);
   } catch (error) {
     res.status(400).json({ message: "Failed to create tour", error: error.message });
@@ -22,22 +24,22 @@ const createTour = async (req, res) => {
 };
 
 // GET /tours/:tourId
-const getTourById = async (req, res) => {
-  const { tourId } = req.params;
-
-  if (!mongoose.Types.ObjectId.isValid(tourId)) {
-    return res.status(400).json({ message: "Invalid tour ID" });
+const getTour = async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).json({ error: "No such tourId" });
   }
 
   try {
-    const tour = await Tour.findById(tourId);
-    if (tour) {
-      res.status(200).json(tour);
-    } else {
-      res.status(404).json({ message: "Tour not found" });
+    const user_id = req.user._id;
+    const tourId = await Tour.findOne({ _id: id, user_id });
+    if (!tourId) {
+      return res.status(404).json({ message: "Tour not found" });
     }
+    res.status(200).json(tour);
   } catch (error) {
-    res.status(500).json({ message: "Failed to retrieve tour" });
+    console.error(error);
+    res.status(500).json({ error: "Server Error" });
   }
 };
 
@@ -87,7 +89,7 @@ const deleteTour = async (req, res) => {
 
 module.exports = {
   getAllTours,
-  getTourById,
+  getTour,
   createTour,
   updateTour,
   deleteTour,

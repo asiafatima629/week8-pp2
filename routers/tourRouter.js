@@ -2,16 +2,18 @@ const express = require("express");
 const router = express.Router();
 const {
   getAllTours,
-  getTourById,
+  getTour,
   createTour,
   updateTour,
   deleteTour,
 } = require("../controllers/tourControllers");
-
+const requireAuth = require("../middleware/requireAuth");
+router.use(requireAuth);
 
 router.get("/", getAllTours);
+
 router.post("/", createTour);
-router.get("/:tourId", getTourById);
+router.get("/:tourId", getTour);
 router.put("/:tourId", updateTour);
 router.delete("/:tourId", deleteTour);
 
