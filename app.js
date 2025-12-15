@@ -11,6 +11,7 @@ const tourRouter = require("./routers/tourRouter");
 const app = express();
 
 connectDB();
+ 
 
 // middleware
 app.use(cors());
